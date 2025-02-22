@@ -1,54 +1,54 @@
 import pygame
 import socket
 import time
-# 
-# Arduino IP and port (Dont forget to change)
-ARDUINO_IP = "192.168.1.50"
-PORT = 5005
 
-# Initialize pygame and joystick
+
+ARDUINO_IP = "192.168.1.50"   # static ip set to match the network
+PORT = 8080                   # Port number on which the arduino server is listening
+
+#  pygame and the controller
 pygame.init()
 joystick = pygame.joystick.Joystick(0)
 joystick.init()
 
-def send_motor_command(left_speed, right_speed, up_speed, down_speed):
+def get_motor_commands():
+    # update joystick events
+    pygame.event.pump()
     
-   # Sends a command like 'L:100,R:-100,U:80,D:-80\n' 
-   
-    command = f"L:{left_speed},R:{right_speed},U:{up_speed},D:{down_speed}\n"
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((ARDUINO_IP, PORT))
-            s.sendall(command.encode())  # Send command
-            response = s.recv(1024).decode()  # Receive
-            print(f"Sent: {command.strip()} | Received: {response}")
-    except Exception as e:
-        print(f"Error sending command: {e}")
+    # horizontal control:
+    # left stick Y-axis for throttle (forward/backward) - invert so forward is positive.
+    throttle = -joystick.get_axis(1)
+    # right stick X-axis for turning (left/right)
+    turn = joystick.get_axis(3)
+    
+    # vertical control using triggers:
+    # right trigger for up; Left trigger for down.
+    up_thrust = joystick.get_axis(5)    
+    down_thrust = joystick.get_axis(2)  
+    
+
+    left_motor = int((throttle - turn) * 255)
+    right_motor = int((throttle + turn) * 255)
+    
+    # scale triggers to 0 to 255 for vertical control. maybe this works?
+    up_motor = int(up_thrust * 255)
+    down_motor = int(down_thrust * 255)
+    
+    return left_motor, right_motor, up_motor, down_motor
 
 while True:
-    pygame.event.pump()  # Process joystick events
+    left, right, up, down = get_motor_commands()
+    
+    # format the command string: "L:<left>,R:<right>,U:<up>,D:<down>\n"
+    command = f"L:{left},R:{right},U:{up},D:{down}\n"
+    
 
-    # Read joystick
-    throttle = -joystick.get_axis(1)  # Forward/Backward
-    turn = joystick.get_axis(3)       # Left/Right turn
-
-    # Read trigger values (0 to 1) i think
-    down_thrust = joystick.get_axis(2)  # LT for DOWN
-    up_thrust = joystick.get_axis(5)    # RT for UP
-
-    # Convert triggers to motor speeds (0-255)
-    up_speed = int(up_thrust * 255)
-    down_speed = int(down_thrust * 255)
-
-    # Convert joystick values to motor speeds (-255 to 255)
-    left_motor_speed = int((throttle + turn) * 255)  
-    right_motor_speed = int((throttle - turn) * 255)
-
-    # Limit speed values between -255 and 255
-    left_motor_speed = max(-255, min(255, left_motor_speed))
-    right_motor_speed = max(-255, min(255, right_motor_speed))
-
-    # Send data to Arduino
-    send_motor_command(left_motor_speed, right_motor_speed, up_speed, -down_speed)
-
-    time.sleep(0.1)
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.connect((ARDUINO_IP, PORT))
+            sock.sendall(command.encode())
+    except Exception as e:
+        print("Connection error:", e)
+    
+    print("Sent:", command.strip())
+    time.sleep(0.1)  
