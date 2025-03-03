@@ -1,16 +1,15 @@
 #include <SPI.h>
 #include <Ethernet.h>
 
-// configuration
+// config
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; // MAC address
-IPAddress ip(192, 168, 1, 50);                         // Arduino's static IP address
-EthernetServer server(8080);                           // Server listening on port 8080
+IPAddress ip(192, 168, 1, 50);                         // arduino's static IP address
+EthernetServer server(8080);                           // server listening on port 8080
 
 // motor driver pins 
 #define PWM1 5   // Left motor speed control
-// Originally DIR1 was defined as pin 4, but pin 4 is used by the SD card on the shield.
-// Reassign DIR1 to a different free digital pin (e.g., pin 2).
-#define DIR1 2   // Left motor direction control (reassigned)
+
+#define DIR1 2   // Left motor direction control
 #define PWM2 6   // Right motor speed control
 #define DIR2 7   // Right motor direction control
 #define PWM3 9   // Vertical up motor speed control
@@ -19,19 +18,18 @@ EthernetServer server(8080);                           // Server listening on po
 #define DIR4 11  // Vertical down motor direction control
 
 void setup() {
-  // Disable the SD card by setting its chip-select pin (pin 4) as OUTPUT and driving it HIGH.
-  // This prevents interference with the Ethernet controller.
+  // disable sd card
   pinMode(4, OUTPUT);
   digitalWrite(4, HIGH);
   
-  // Initialize Ethernet
+  // Init ethernet
   Ethernet.begin(mac, ip);
-  server.begin();  // Start the server
+  server.begin();  // start the server
 
   Serial.begin(9600);
   while (!Serial) { ; }
   
-  // Set motor pins as outputs
+  // set motor pins as outputs
   pinMode(PWM1, OUTPUT); pinMode(DIR1, OUTPUT);
   pinMode(PWM2, OUTPUT); pinMode(DIR2, OUTPUT);
   pinMode(PWM3, OUTPUT); pinMode(DIR3, OUTPUT);
@@ -42,46 +40,46 @@ void setup() {
 }
 
 void loop() {
-  // Check for an incoming connection from the Python client
+  // check for an incoming connection from the Python client
   EthernetClient client = server.available();
   if (client) {
     String command = "";
-    // Read incoming characters until a newline is encountered
+    // read incoming characters until a newline is encountered
     while (client.available()) {
       char c = client.read();
       if (c == '\n') break;
       command += c;
     }
     
-    // Process the command if received
+    // process the command 
     if (command.length() > 0) {
       int leftMotor, rightMotor, upMotor, downMotor;
-      // Expected command format: "L:150,R:-150,U:255,D:0"
+      //: "L:150,R:-150,U:255,D:0"
       sscanf(command.c_str(), "L:%d,R:%d,U:%d,D:%d", &leftMotor, &rightMotor, &upMotor, &downMotor);
       
-      // Debug prints to the serial monitor
+      // degug stuff 
       Serial.print("L: "); Serial.print(leftMotor);
       Serial.print(" R: "); Serial.print(rightMotor);
       Serial.print(" U: "); Serial.print(upMotor);
       Serial.print(" D: "); Serial.println(downMotor);
       
-      // Set motor speeds based on the received values
+      // set motor speeds
       setMotor(PWM1, DIR1, leftMotor);
       setMotor(PWM2, DIR2, rightMotor);
       setMotor(PWM3, DIR3, upMotor);
       setMotor(PWM4, DIR4, downMotor);
     }
-    client.stop();  // Close the connection
+    client.stop();  // close the connection
   }
 }
 
-// Function to set motor speed and direction
+// set motor speed and direction
 void setMotor(int pwmPin, int dirPin, int speed) {
-  // Constrain speed to the valid range (-255 to 255)
+  // cconstrain speed to either -222 or 255
   speed = constrain(speed, -255, 255);
-  // Set motor direction based on the sign of speed
+  // set motor direction based on the sign of speed
   digitalWrite(dirPin, speed >= 0 ? HIGH : LOW);
-  // Write the PWM value (absolute speed) to the motor
+  // write the pw, value
   analogWrite(pwmPin, abs(speed));
   
 }
