@@ -16,7 +16,7 @@ def get_motor_commands():
     pygame.event.pump()
     
     # horizontal control:
-    # left stick Y-axis for throttle (forward/backward) - invert so forward is positive.
+    # left stick Y-axis for throttle (forward/backward) - invert so forward is positive maybe?
     throttle = -joystick.get_axis(1)
     # right stick X-axis for turning (left/right)
     turn = joystick.get_axis(2)
@@ -38,7 +38,7 @@ def get_motor_commands():
 while True:
     left, right, up, down = get_motor_commands()
     
-    # format the command string: "L:<left>,R:<right>,U:<up>,D:<down>\n"
+    # format "L:<left>,R:<right>,U:<up>,D:<down>\n"
     command = f"L:{left},R:{right},U:{up},D:{down}\n"
     
     try:
