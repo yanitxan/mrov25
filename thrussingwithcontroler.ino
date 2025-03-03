@@ -7,15 +7,15 @@ IPAddress ip(192, 168, 1, 50);                         // arduino's static IP ad
 EthernetServer server(8080);                           // server listening on port 8080
 
 // motor driver pins 
-#define PWM1 5   // Left motor speed control
+#define PWM1 5   // left motor speed control
 
-#define DIR1 2   // Left motor direction control
-#define PWM2 6   // Right motor speed control
-#define DIR2 7   // Right motor direction control
-#define PWM3 9   // Vertical up motor speed control
-#define DIR3 8   // Vertical up motor direction control
-#define PWM4 10  // Vertical down motor speed control
-#define DIR4 11  // Vertical down motor direction control
+#define DIR1 2   // left motor direction control
+#define PWM2 6   // right motor speed control
+#define DIR2 7   // right motor direction control
+#define PWM3 9   //  up motor speed control
+#define DIR3 8   //  up motor direction control
+#define PWM4 10  //  down motor speed control
+#define DIR4 11  //  down motor direction control
 
 void setup() {
   // disable sd card
