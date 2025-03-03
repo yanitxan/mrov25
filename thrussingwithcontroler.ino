@@ -40,7 +40,9 @@ void setup() {
 }
 
 void loop() {
-  // check for an incoming connection from the Python client
+
+// * don't forget to add ethenet checks 
+  // check for an incoming connection from python
   EthernetClient client = server.available();
   if (client) {
     String command = "";
