@@ -2,6 +2,40 @@ import pygame
 import socket
 import time
 
+arduino_ip = "192.168.1.50"
+port = 8080
+
+
+pygame.init()
+if pygame.joystick.get_count() == 0: # looks for joystick and if not found exit python
+    print("no joystick found")
+    exit()
+joystick = pygame.joystick.Joystick(0)
+joystick.init()
+print("joystick started")
+
+def get_motor_commands():
+    pygame.event.pump()
+
+    leftStick = joystick.get_axis(1)
+    rightStick = joystick.get_axis(3)
+    up_thrust = joystick.get_axis(5)
+    down_thrust = joystick.get_axis(4)
+
+    leftMotor = round(leftStick * 255) # turns 0-1 to 255
+    rightMotor = round(rightStick * 255)
+    upMotor = round(up_thrust * 255)
+    downMotor = round(down_thrust * 255)
+
+    return leftMotor, rightMotor, upMotor, downMotor
+
+while True:
+    print(get_motor_commands())
+
+import pygame
+import socket
+import time
+
 
 pygame.init()
 if pygame.joystick.get_count() == 0: # looks for joystick and if not found exit python
