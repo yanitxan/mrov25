@@ -19,12 +19,12 @@ def get_motor_commands():
     # left stick Y-axis for throttle (forward/backward) - invert so forward is positive maybe?
     throttle = -joystick.get_axis(1)
     # right stick X-axis for turning (left/right)
-    turn = joystick.get_axis(2)
+    turn = joystick.get_axis(3)
     
     # vertical control using triggers:
     # right trigger for up; Left trigger for down.
     up_thrust = joystick.get_axis(5)
-    down_thrust = joystick.get_axis(4)
+    down_thrust = joystick.get_axis(2)
     
     left_motor = int((throttle - turn) * 255)
     right_motor = int((throttle + turn) * 255)
