@@ -7,7 +7,7 @@ arduino_ip = "192.168.1.50"
 port = 8080
 
 # joystick dead zone threshold
-DEAD_ZONE = 0.1  
+DEAD_ZONE = 0.2  
 
 pygame.init()
 if pygame.joystick.get_count() == 0: # looks for joystick and if not found exit python
