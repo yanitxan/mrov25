@@ -2,12 +2,12 @@
 #include <Ethernet.h>
 
 // Config
-byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; // MAC address
-IPAddress ip(192, 168, 1, 50);                         // Arduino's static IP address
-EthernetServer server(8080);                           // Port 8080
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; 
+IPAddress ip(192, 168, 1, 50);                         
+EthernetServer server(8080);                         
 
 #define PWM1 5   // Left motor speed control
-#define DIR1 2   // Left motor direction control (reassigned)
+#define DIR1 2   // Left motor direction control
 #define PWM2 6   // Right motor speed control
 #define DIR2 7   // Right motor direction control
 #define PWM3 9   // Vertical up motor speed control
@@ -16,11 +16,11 @@ EthernetServer server(8080);                           // Port 8080
 #define DIR4 11  // Vertical down motor direction control
 
 void setup() {
-  // Disable pin 4 for Ethernet module compatibility
+  
   pinMode(4, OUTPUT);
   digitalWrite(4, HIGH);
   
-  // Initialize motor pins
+ 
   pinMode(PWM1, OUTPUT); pinMode(DIR1, OUTPUT);
   pinMode(PWM2, OUTPUT); pinMode(DIR2, OUTPUT);
   pinMode(PWM3, OUTPUT); pinMode(DIR3, OUTPUT);
@@ -31,7 +31,7 @@ void setup() {
 
   turnOffMotors();
 
-  // Start Ethernet
+  
   Serial.println("Starting Ethernet...");
   Ethernet.begin(mac, ip);
   server.begin();
@@ -43,18 +43,18 @@ void setup() {
 }
 
 void loop() {
-  // Check if a client is available
+ 
   EthernetClient client = server.available();
   if (client) {
     Serial.println("Client connected!");
     String command = "";
     unsigned long lastReceiveTime = millis();
     
-    // Keep the connection open as long as the client is connected
+   
     while (client.connected()) {
       if (client.available()) {
         char c = client.read();
-        lastReceiveTime = millis(); // Update last received time
+        lastReceiveTime = millis();
 
         if (c == '\n') {
           if (command.length() > 0) {
@@ -67,20 +67,20 @@ void loop() {
             if (parsed == 4) {
               setMotor(PWM1, DIR1, leftMotor);
               setMotor(PWM2, DIR2, rightMotor);
-              setVerticalMotors(upMotor, downMotor); // Run both thrusters together
+              setVerticalMotors(upMotor, downMotor); 
               Serial.println("Motor commands executed.");
             } else {
               Serial.println("Failed to parse command!");
               turnOffMotors();
             }
           }
-          command = ""; // Clear the command
+          command = ""; 
         } else {
           command += c;
         }
       }
       
-      // Disconnect after 10 seconds of inactivity
+
       if (millis() - lastReceiveTime > 10000) {
         Serial.println("No data received for 10 seconds. Disconnecting.");
         turnOffMotors();
@@ -88,47 +88,47 @@ void loop() {
       }
     }
     
-    client.stop(); // Close the connection
+    client.stop();
     Serial.println("Client disconnected.\n");
     turnOffMotors();
-    delay(100); // Pause before checking for new connections
+    delay(100);
   }
 }
 
-// Function to control left and right motors
+
 void setMotor(int pwmPin, int dirPin, int speed) {
   speed = constrain(speed, -255, 255);
   digitalWrite(dirPin, speed >= 0 ? HIGH : LOW);
   analogWrite(pwmPin, abs(speed));
 }
 
-// Function to run both vertical thrusters together
+
 void setVerticalMotors(int upSpeed, int downSpeed) {
   upSpeed = constrain(upSpeed, 0, 255);
   downSpeed = constrain(downSpeed, 0, 255);
 
   if (upSpeed > 0 && downSpeed == 0) { 
-    // Going UP: Both motors push water downward (same direction)
+  
     digitalWrite(DIR3, HIGH);
     digitalWrite(DIR4, HIGH);
     analogWrite(PWM3, upSpeed);
     analogWrite(PWM4, upSpeed);
   } 
   else if (downSpeed > 0 && upSpeed == 0) { 
-    // Going DOWN: Both motors reverse (opposite direction)
+ 
     digitalWrite(DIR3, LOW);
     digitalWrite(DIR4, LOW);
     analogWrite(PWM3, downSpeed);
     analogWrite(PWM4, downSpeed);
   } 
   else { 
-    // Neutral: Turn off both thrusters
+
     analogWrite(PWM3, 0);
     analogWrite(PWM4, 0);
   }
 }
 
-// Function to turn off all motors
+
 void turnOffMotors() {
   setMotor(PWM1, DIR1, 0);
   setMotor(PWM2, DIR2, 0);
