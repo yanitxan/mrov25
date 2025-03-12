@@ -26,8 +26,8 @@ def get_motor_commands():
 
     leftStick = apply_dead_zone(joystick.get_axis(1))
     rightStick = apply_dead_zone(joystick.get_axis(3))
-    up_thrust = apply_dead_zone(joystick.get_axis(2))
-    down_thrust = apply_dead_zone(joystick.get_axis(4))
+    up_thrust = apply_dead_zone(joystick.get_axis(5))
+    down_thrust = apply_dead_zone(joystick.get_axis(2))
 
     leftMotor = round(leftStick * 255) # turns -1 to 1 range to -255 to 255
     rightMotor = round(rightStick * 255)
