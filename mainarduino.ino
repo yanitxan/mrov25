@@ -1,13 +1,13 @@
 #include <SPI.h>
 #include <Ethernet.h>
-#include <Servo.h>  // Use standard Servo library
+#include <Servo.h>
 
-// Ethernet configuration
+// ETHERNET CONFIG
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 IPAddress ip(192, 168, 1, 50);
 EthernetServer server(8080);
 
-// Motor pins
+// MOTOR PINS
 #define PWM1 5   // Left motor speed control
 #define DIR1 2   // Left motor direction control
 #define PWM2 6   // Right motor speed control
@@ -17,14 +17,14 @@ EthernetServer server(8080);
 #define PWM4 3   // Vertical down motor speed control
 #define DIR4 11  // Vertical down motor direction control
 
-// Servo configuration
-#define CLAW_PIN 5  // Attach the servo to analog pin A0
+// SERVO
+#define CLAW_PIN 5 
 Servo clawServo;
-volatile int targetClawPos = 90; // Default claw position
+volatile int targetClawPos = 90; // default clawpos
 
 void setup() {
   Serial.begin(9600);
-  while (!Serial) { ; }  // Wait for Serial connection
+  while (!Serial) { ; }  // waits for serial connection
   
   Serial.println("Starting Ethernet...");
   Ethernet.begin(mac, ip);
@@ -33,7 +33,7 @@ void setup() {
   Serial.print("Server is at ");
   Serial.println(Ethernet.localIP());
 
-  // Attach servo to analog pin A0
+  
   clawServo.attach(CLAW_PIN);
   clawServo.write(targetClawPos);
 }
@@ -54,12 +54,12 @@ void loop() {
             int parsed = sscanf(command.c_str(), "L:%d,R:%d,U:%d,D:%d,Claw:%d",
                                 &leftMotor, &rightMotor, &upMotor, &downMotor, &clawPos);
             if (parsed == 5) {
-              // Process motor commands
+              // process motor commands
               setMotor(PWM1, DIR1, leftMotor);
               setMotor(PWM2, DIR2, rightMotor);
               setVerticalMotors(upMotor, downMotor);
               
-              // Move claw safely
+              // moves claw
               moveClaw(clawPos);
               Serial.println("Motor and claw commands executed.");
             } else {
@@ -82,13 +82,13 @@ void loop() {
 
 
 void moveClaw(int pos) {
-  clawServo.attach(CLAW_PIN);  // Reattach before moving
+  clawServo.attach(CLAW_PIN);  // reattach before moving
   clawServo.write(pos);
-  delay(20);  // Allow time for movement
+  delay(20);  // allows time for movement
   clawServo.detach();  
 }
 
-// Motor control functions
+// motor control functions
 void setMotor(int pwmPin, int dirPin, int speed) {
   speed = constrain(speed, -255, 255);
   digitalWrite(dirPin, speed >= 0 ? HIGH : LOW);
