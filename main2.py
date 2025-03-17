@@ -3,12 +3,12 @@ import socket
 import time
 import threading
 
-# Arduino Ethernet Info
+# ARDUINO ETHERNET INFO
 arduino_ip = "192.168.1.50"
 port = 8080
 DEAD_ZONE = 0.1
 
-# Initialize pygame
+# Init pygame
 pygame.init()
 if pygame.joystick.get_count() == 0:
     print("No joystick found")
@@ -17,13 +17,13 @@ joystick = pygame.joystick.Joystick(0)
 joystick.init()
 print("Joystick started")
 
-# Button Mapping
-UP_BUTTON = 0   # X button → Move claw open
-DOWN_BUTTON = 1 # Circle button → Move claw close
+# button mapping
+UP_BUTTON = 0   
+DOWN_BUTTON = 1 
 
 # Servo position tracking
-claw_pos = 0  # Claw starts fully open (0 degrees)
-step_delay = 0.005  # Smooth movement delay
+claw_pos = 0  # starts fully open (0 degrees)
+step_delay = 0.005  # smooth movement delay
 claw_lock = threading.Lock()
 
 def apply_dead_zone(value, threshold=DEAD_ZONE):
@@ -58,7 +58,7 @@ def connect_to_arduino():
         print("Connection error:", e)
         return None
 
-# Function to smoothly control the claw
+# function to control the claw
 def control_claw():
     global claw_pos
     while True:
@@ -73,7 +73,7 @@ def control_claw():
                     claw_pos -= 1  # Slowly close
         time.sleep(step_delay)
 
-# Start claw movement in a separate thread
+# starts claw movement in a separate thread
 claw_thread = threading.Thread(target=control_claw, daemon=True)
 claw_thread.start()
 
@@ -103,4 +103,4 @@ while True:
         time.sleep(2)
         continue
 
-    time.sleep(0.1)  # Regular update interval
+    time.sleep(0.1)  # regular update
